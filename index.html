@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="feedreader">
+<head>
+  <meta charset="utf-8">
+  <title>Bootstrap 3, from LayoutIt!</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+	<!--link rel="stylesheet/less" href="less/bootstrap.less" type="text/css" /-->
+	<!--link rel="stylesheet/less" href="less/responsive.less" type="text/css" /-->
+	<!--script src="js/less-1.3.3.min.js"></script-->
+	<!--append ‘#!watch’ to the browser URL, then refresh the page. -->
+	
+	
+	<link href="css/font-awesome.css" rel="stylesheet">
+	<link href="css/jquery.notebook.css" rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+  <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+  <!--[if lt IE 9]>
+    <script src="js/html5shiv.js"></script>
+  <![endif]-->
+
+  <!-- Fav and touch icons -->
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="img/apple-touch-icon-144-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="img/apple-touch-icon-114-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="img/apple-touch-icon-72-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" href="img/apple-touch-icon-57-precomposed.png">
+  <link rel="shortcut icon" href="img/favicon.png">
+  
+	<script type="text/javascript" src="js/jquery-2.0.3.min.js"></script>
+	
+	<script type="text/javascript" src="lib/underscore-min.js"></script>
+    <script type="text/javascript" src="lib/backbone-min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="lib/jquery.notebook.js"></script>
+</head>
+
+<body ng-controller="main">
+<div class="container">
+	<div class="row clearfix">
+		<div class="col-md-12 column">
+			<nav class="navbar navbar-default" role="navigation">
+				<div class="navbar-header">
+					 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"> <span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button> <a class="navbar-brand" href="#">notes</a>
+				</div>
+				
+				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+				<!--- <ul class="nav navbar-nav">
+						<li class="active">
+							<a href="#">Link</a>
+						</li>
+						<li>
+							<a href="#">Link</a>
+						</li>
+						<li class="dropdown">
+							 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown<strong class="caret"></strong></a>
+							<ul class="dropdown-menu">
+								<li>
+									<a href="#">Action</a>
+								</li>
+								<li>
+									<a href="#">Another action</a>
+								</li>
+								<li>
+									<a href="#">Something else here</a>
+								</li>
+								<li class="divider">
+								</li>
+								<li>
+									<a href="#">Separated link</a>
+								</li>
+								<li class="divider">
+								</li>
+								<li>
+									<a href="#">One more separated link</a>
+								</li>
+							</ul>
+						</li>
+					</ul>
+					<form class="navbar-form navbar-left" role="search">
+						<div class="form-group">
+							<input class="form-control" type="text" />
+						</div> <button type="submit" class="btn btn-default">Submit</button>
+					</form>  ----->
+					
+				</div>
+				
+			</nav> 
+		</div>
+	</div>
+	<div class="row clearfix">
+		<div class="col-md-8 column" id="rightRegion">
+		
+		
+		</div>
+		<div class="col-md-4 column" id="leftRegion">
+			<div class="panel-group" id="panel-940692">				
+				<div class="panel panel-default">
+					<div class="panel-heading" id="header">
+						 <a class="panel-title" data-toggle="collapse" data-parent="#panel-940692" href="#panel-element-773553">Lists of Notes</a><span id="addnote" class="pull-right glyphicon glyphicon-plus"></span>
+					</div>
+					<div id="panel-element-773553" class="panel-collapse in">
+						<div class="panel-body" >
+							
+					    </div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!--- template sections --->
+
+<script type="text/template" id="notesItemTemplate">
+<a href="#"><%= title %></a><span class="pull-right glyphicon glyphicon-remove"></span>
+</script>
+
+
+<script type="text/template" id="notesListCollectionTemplate">
+<ul id="notesList"></ul>
+</script>
+
+<script type="text/template" id="createNoteItemTemplate">
+<button  id="notesave" class="pull-right btn" >save</button> 
+<div id="note-title"  ><%= title %></div>
+
+<div id="note-body"><%= body %></div>
+
+</script>
+<script>
+//(function(){
+
+//initializing the app object 
+var App = {};
+
+
+App.vent = _.extend({}, Backbone.Events); //extending events handle custom events in application
+
+
+App.noteModel = Backbone.Model.extend({
+                   // default set
+                });
+				
+App.noteCollection = Backbone.Collection.extend({
+                        model : App.noteModel,   // this is a collection of noteModel types 
+						url:'backend/index.php/notes',
+						initialize:function(){
+						  
+						}
+				     });
+				
+App.noteItemView = Backbone.View.extend({
+                   tagName:'li',
+				   className:'panel-heading',
+				   initialize:function(option){
+				   this.model = option.model;
+				   this.render();
+				   },
+				   events:{
+				   'click a':'noteSelected'
+				   },
+				   noteSelected:function(e){
+				   
+				   App.vent.trigger("eventNoteSelect",this.model);
+				   
+				   },
+				   render:function(){
+				   this.$el.append(_.template($('#notesItemTemplate').html(),this.model.toJSON()));
+				   
+				   return this;
+				   }
+				   
+				   
+				   
+                   });
+
+App.noteCollectionView = Backbone.View.extend({
+                   tagName:'ul',
+				   initialize:function(option){
+				    this.collection = option.collection
+				    view = this;
+					this.collection.fetch({
+					success:function(){
+					view.render();
+					}					
+					});					
+				   },
+				   render:function(){
+				   
+				      this.collection.each(function(value,key,list){					    
+					     var itemView = new App.noteItemView({model:value});
+						 this.$el.append(itemView.el);					  
+					  },this);
+					    return this;					    
+				   }
+				   
+                   });	
+
+App.noteCreateItemView = Backbone.View.extend({
+                  tagName:'div',
+				  className:'createSection',
+				  events:{
+				  'click #notesave':'saveNote',
+				  },
+				  saveNote:function(e){	
+                  
+				  this.model.set('title',this.$el.find('#note-title').html());
+				  this.model.set('body',this.$el.find('#note-body').html());
+				  this.model.save();
+				  },
+				  initialize:function(){
+				  this.model = new App.noteModel({title:'Title',body:'Body......'});
+				  
+				  this.render();
+				  
+				  App.vent.on("eventNoteSelect",function(model){
+				  this.model = model;
+				  this.render();	
+                  App.vent.trigger("updateRegion");				  
+				  },this);
+				  
+				  }	,			  
+				  render:function(){
+				  var template = _.template($('#createNoteItemTemplate').html(),this.model.toJSON());
+				     this.$el.html(template); 					 
+					 return this;
+				  },
+				   
+                  });				   
+				   
+App.leftRegion = Backbone.View.extend({
+    events:{
+	'click #addnote':'addNoteEvent'
+	
+	},
+	addNoteEvent:function(){
+	
+	 //this.collectionView.collection.create(new App.noteModel());
+	},
+    initialize:function(){
+	this.collectionView =  new App.noteCollectionView({collection:new App.noteCollection()});
+	   this.render();
+	   
+	},
+	render:function(){
+	  
+	  
+   	  
+	  this.collectionView.render();
+	  this.$el.find('.panel-body').append(this.collectionView.el);
+	}
+});
+App.rightRegion = Backbone.View.extend({
+  
+   initialize:function(){
+  this.noteCreateItemView = new App.noteCreateItemView(); 
+  this.render();
+App.vent.on("updateRegion",this.render,this);   
+   },
+   render:function(){
+    console.log("eee");
+    this.$el.append(this.noteCreateItemView.el);
+	this.$el.find('#note-title').notebook();
+	this.$el.find('#note-body').notebook();
+	
+   },
+   createNoteBook:function(){
+   
+   
+   }
+				  
+				  
+				  
+
+
+});
+// implementing functionality 
+
+new App.leftRegion({el:'#leftRegion'});
+
+new App.rightRegion({el:"#rightRegion"});
+
+
+
+
+
+
+//});
+
+
+
+
+</script>
+<style>
+.createSection{
+width:100%;
+height:100%;
+min-height:200px;
+background:url('./img/bodyback.png');
+}
+
+#note-title{
+font-weight:bold;
+font-size:20px;
+padding:2%;
+margin-top:2%;
+}
+
+#note-body{
+font-size:15px;
+padding:2%;
+
+}
+
+
+</style>
+
+</body>
+
+
+</html>
