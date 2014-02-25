@@ -40,8 +40,28 @@ echo json_encode($notes);
 
 });
 
-$app->post('/notes',function(){
-$notes = $app->request->getBody();
+$app->post('/notes',function() use ($app){
+$body = $app->request->getBody();
+
+
+
+
+$data = (array) json_decode($body);
+
+
+ if($data){
+$note = R::dispense('note');
+$note->title = $data['title'];
+$note->body = $data['body'];
+$note->created = time(); 
+$result = R::store($note);
+echo json_encode($note->export());
+}else{
+
+echo json_encode(array());
+
+}
+
 
 
 
@@ -49,12 +69,36 @@ $notes = $app->request->getBody();
 });
 
 
-$app->put('/notes/:id', function ($id) {
+$app->put('/notes/:id', function($id) use ($app) {
+
+$body = $app->request->getBody();
+$obj = json_decode($body);
+$note = R::load('note',$id);
+
+if($note->id){
+
+$note->title = $obj->title;
+$note->body = $obj->body;
+
+R::store($note);
+
+}
+
+
+echo json_encode($note->export());
+
     
 });
 
 $app->delete('/notes/:id', function ($id) {
     //Delete book identified by $id
+    $note = R::load('note',$id);
+    if($note->id){
+      R::trash($note);
+     }    
+ 
+  echo json_encode(array());
+
 });
 
 $app->run();
