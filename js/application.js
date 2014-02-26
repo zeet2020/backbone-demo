@@ -14,19 +14,23 @@ App.noteModel = Backbone.Model.extend({
 		title:'Title..',
 		body:'Body...'
     },
-    validate:function(attr){   // defining a validation method 
-		var title = $(attr.title).text();  // validate lenght of title 
-        
-		console.log(title.length);
+    validate:function(attr,options){   // defining a validation method 
 		
-		return false;
+		if(attr.title.length > 0){
+		   var tempTitle = $("<p>"+attr.title+"<p>").text();
+		    if(tempTitle.length > 120){
+			  alert("validation failed enter only 120 char in title");
+			  return false;
+			}
+		}
+		
     }
                    
 });
 				
 App.noteCollection = Backbone.Collection.extend({
 	model : App.noteModel,   // this is a collection of "noteModel" type 
-	url:'backend/index.php/notes',
+	url:'backend/index.php/notes',  // defining a rest end point for the collection and model.. 
 });
 				
 //defining a itemView for each note 				
