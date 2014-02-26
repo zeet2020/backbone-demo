@@ -1,0 +1,195 @@
+
+
+//initializing the app global object to attach methods 
+var App = {};
+
+
+//extending events handle custom events in application
+App.vent = _.extend({}, Backbone.Events); 
+
+
+App.noteModel = Backbone.Model.extend({
+	// set default property 
+    defaults:{
+		title:'Title..',
+		body:'Body...'
+    },
+    validate:function(attr){   // defining a validation method 
+		var title = $(attr.title).text();  // validate lenght of title 
+        
+		console.log(title.length);
+		
+		return false;
+    }
+                   
+});
+				
+App.noteCollection = Backbone.Collection.extend({
+	model : App.noteModel,   // this is a collection of "noteModel" type 
+	url:'backend/index.php/notes',
+});
+				
+//defining a itemView for each note 				
+App.noteItemView = Backbone.View.extend({
+	tagName:'li',
+	className:'panel-heading',
+	initialize:function(option){
+		this.model = option.model;
+        this.listenTo(this.model,'change',this.render);
+        this.render();
+	},
+	events:{
+		'click a':'noteSelected',
+		'click #deletenote':'deleteNote'
+	},
+	deleteNote:function(e){
+	  e.stopPropagation();
+		this.model.destroy({
+			success:function(m){
+			   
+				App.vent.trigger("noteDestroy",m);
+            }
+        });
+    },
+	noteSelected:function(e){
+		App.vent.trigger("noteSelect",this.model);
+	},
+	render:function(){
+		this.$el.html(_.template($('#notesItemTemplate').html(),this.model.toJSON()));				   
+		return this;
+	}				   
+});
+
+App.noteCollectionView = Backbone.View.extend({
+	tagName:'ul',
+	className:'nav nav-pills nav-stacked',
+    initialize:function(option){
+		this.collection = option.collection
+		ncview = this;
+		
+		this.collection.fetch({
+			success:function(){
+				ncview.render();
+			}					
+		});
+
+		App.vent.on('createnote',function(model){
+			this.collection.create(model,{
+				success:function(){
+				
+					ncview.render();
+                }
+	        });
+        },this);
+
+        App.vent.on("noteDestroy",function(){
+			this.render();			
+        },this);
+
+
+	},
+	render:function(){
+		var link= '';
+		this.$el.empty(); // empty all elements		
+		this.collection.each(function(value,key,list){					    
+			var itemView = new App.noteItemView({model:value});
+			this.$el.append(itemView.el);
+		},this);
+		return this;					    
+	}
+});	
+
+App.noteCreateItemView = Backbone.View.extend({
+	tagName:'div',
+	className:'createSection',
+	events:{
+		'click #savenote':'saveNote',
+		'click #newnote':'newNote'
+	},
+	newNote:function(e){
+		this.model = new App.noteModel();		
+		App.vent.trigger("updateRegion");
+	},
+	saveNote:function(e){	
+		this.model.set('title',this.$el.find('#note-title').text());
+		this.model.set('body',this.$el.find('#note-body').html());
+				  
+		if(this.model.get('id')){
+		
+			this.model.save();
+        }else{
+            App.vent.trigger("createnote",this.model);
+        }
+	},
+	initialize:function(){
+		this.model = new App.noteModel();
+		App.vent.on("noteSelect",function(model){
+			this.model = model;
+			//view = this;			
+			App.vent.trigger("updateRegion");				  
+		},this);
+				  
+	},			  
+	render:function(){
+		var template = _.template($('#createNoteItemTemplate').html(),this.model.toJSON());
+		this.$el.html(template); 					 
+		return this;
+	},
+});				   
+				   
+App.leftRegion = Backbone.View.extend({
+	events:{
+		'click #addnote':'addNoteEvent'
+	},
+	addNoteEvent:function(){
+		App.vent.trigger("createnote",new App.noteModel());
+	},
+    initialize:function(){
+		this.collectionView =  new App.noteCollectionView({collection:new App.noteCollection()});
+		this.render();
+	},
+	render:function(){
+		this.$el.find('.panel-body').html(this.collectionView.el);
+	}
+});
+
+App.rightRegion = Backbone.View.extend({
+   initialize:function(){
+		this.noteCreateItemView = new App.noteCreateItemView(); 
+        this.render();
+        App.vent.on("updateRegion",this.render,this); 
+		
+		App.vent.on("noteDestroy",function(){
+		        this.noteCreateItemView.model = new App.noteModel();
+				this.render();		
+		},this);
+        		
+   },
+   render:function(){
+    
+    this.$el.append(this.noteCreateItemView.render().el);
+	this.$el.find('#note-title').notebook({
+				modifiers:['bold', 'italic'],
+				placeholder: 'Type something awesome...',
+				mode: 'inline',
+	});
+	this.$el.find('#note-body').notebook();
+	},
+	
+});
+
+// rendering the regions functionality 
+
+new App.leftRegion({el:'#leftRegion'});
+
+new App.rightRegion({el:"#rightRegion"});
+
+
+
+
+
+
+
+
+
+
