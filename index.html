@@ -28,7 +28,7 @@
   <link rel="apple-touch-icon-precomposed" href="img/apple-touch-icon-57-precomposed.png">
   <link rel="shortcut icon" href="img/favicon.png">
   
-	<script type="text/javascript" src="js/jquery-2.0.3.min.js"></script>
+	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.0/jquery.js"></script>
 	
 	<script type="text/javascript" src="lib/underscore-min.js"></script>
     <script type="text/javascript" src="lib/backbone-min.js"></script>
@@ -112,13 +112,11 @@
 <!--- template sections --->
 
 <script type="text/template" id="notesItemTemplate">
-<a href="#"><%= title %></a><span id="deletenote" class="pull-right glyphicon glyphicon-remove"></span>
+<a href="#"><%= title %><span id="deletenote" class="pull-right glyphicon glyphicon-remove"></span></a>
 </script>
 
 
-<script type="text/template" id="notesListCollectionTemplate">
-<ul id="notesList"></ul>
-</script>
+
 
 <script type="text/template" id="createNoteItemTemplate">
 
@@ -126,251 +124,10 @@
 <div id="note-title"  ><%= title %></div>
 <div id="note-body"><%= body %></div>
 </div>
-<button id="savenote" class="pull-right btn btn-primary">save</button>
+<button id="savenote" class="pull-right btn btn-primary">Save</button>
+<button id="newnote" class="pull-right btn btn-primary">New</button>
 </script>
-<script>
-//(function(){
-
-//initializing the app object 
-var App = {};
-
-
-App.vent = _.extend({}, Backbone.Events); //extending events handle custom events in application
-
-
-App.noteModel = Backbone.Model.extend({
-                   // default set
-                   defaults:{
-                   	title:'Title..',
-                   	body:'Body...'
-                   },
-                   validate:function(attr){
-                  
-                    var title = $(attr.title).text();
-                     console.log(title.length);
-                    
-
-                   }
-                   
-                });
-				
-App.noteCollection = Backbone.Collection.extend({
-                        model : App.noteModel,   // this is a collection of noteModel types 
-						url:'backend/index.php/notes',
-						initialize:function(){
-						  
-						}
-				     });
-				
-App.noteItemView = Backbone.View.extend({
-                   tagName:'li',
-				   className:'panel-heading',
-				   initialize:function(option){
-				   this.model = option.model;
-
-                   this.listenTo(this.model,'change',this.render);
-                   
-				   this.render();
-				   },
-				   events:{
-				   'click a':'noteSelected',
-				   'click #deletenote':'deleteNote'
-				   },
-				   deleteNote:function(){
-                     this.model.destroy(
-                         {
-                          success:function(){
-                          	App.vent.trigger("noteDestroy");
-
-                          }
-
-                         }
-
-                     	);
-                     
-				   },
-				   noteSelected:function(e){
-				   
-				   App.vent.trigger("noteSelect",this.model);
-				   
-				   },
-				   render:function(){
-				   this.$el.html(_.template($('#notesItemTemplate').html(),this.model.toJSON()));
-				   
-				   return this;
-				   }
-				   
-				   
-				   
-                   });
-
-App.noteCollectionView = Backbone.View.extend({
-                   tagName:'ul',
-				   initialize:function(option){
-				    this.collection = option.collection
-				    view = this;
-					this.collection.fetch({
-					success:function(){
-					view.render();
-					}					
-					});
-
-                   App.vent.on('createnote',function(model){
-                   this.collection.create(model,{
-                      success:function(){
-                                   view.render();
-                      }
-	               });
-                   },this);
-
-
-                  App.vent.on("noteDestroy",function(){
-                   this.render();
-                   },this);
-
-
-				   },
-				   render:function(){
-				        var link= '';
-				        this.$el.empty(); // empty all elements
-				        this.collection.each(function(value,key,list){					    
-					     var itemView = new App.noteItemView({model:value});
-						 this.$el.append(itemView.el);
-
-					  },this);
-					  
-					    return this;					    
-				   }
-				   
-                   });	
-
-App.noteCreateItemView = Backbone.View.extend({
-                  tagName:'div',
-				  className:'createSection',
-				  events:{
-				  'click #savenote':'saveNote',
-				  },
-				  saveNote:function(e){	
-                  
-
-				  this.model.set('title',this.$el.find('#note-title').html());
-				  this.model.set('body',this.$el.find('#note-body').html());
-				  
-                   if(this.model.get('id')){
-
-                   	this.model.save();
-                   }else{
-                  
-                     App.vent.trigger("createnote",this.model);
-                   }
-
-				  },
-				  initialize:function(){
-				  this.model = new App.noteModel({title:'Title',body:'Body......'});
-				  
-                  
-
-
-				  this.render();
-				  
-				  App.vent.on("noteSelect",function(model){
-				  this.model = model;
-                  this.listenTo(this.model,'destroy',function(){
-
-                  	this.model = new App.noteModel({
-                     title:'Title',
-                     body:'Body....'
-
-                  	});
-                  	this.render();
-                  	App.vent.trigger("updateRegion");
-                  		
-                  });
-				  this.render();	
-                  App.vent.trigger("updateRegion");				  
-				  },this);
-				  
-				  }	,			  
-				  render:function(){
-				  var template = _.template($('#createNoteItemTemplate').html(),this.model.toJSON());
-				     this.$el.html(template); 					 
-					 return this;
-				  },
-				   
-                  });				   
-				   
-App.leftRegion = Backbone.View.extend({
-    events:{
-	'click #addnote':'addNoteEvent'
-	
-	},
-	addNoteEvent:function(){
-
-    App.vent.trigger("createnote",new App.noteModel({
-         title:'Title',
-         body:'Body....'
-
-    }));
-	 
-	 
-	},
-    initialize:function(){
-	this.collectionView =  new App.noteCollectionView({collection:new App.noteCollection()});
-	   this.render();
-	   
-	},
-	render:function(){
-	    this.$el.find('.panel-body').html(this.collectionView.el);
-	}
-});
-
-App.rightRegion = Backbone.View.extend({
-  
-   initialize:function(){
-
-         this.noteCreateItemView = new App.noteCreateItemView(); 
-         this.render();
-         App.vent.on("updateRegion",this.render,this);   
-   
-   },
-   render:function(){
-    
-    this.$el.append(this.noteCreateItemView.el);
-	this.$el.find('#note-title').notebook({
-		modifiers:['bold', 'italic'],
-        placeholder: 'Type something awesome...',
-        mode: 'inline',
-	});
-	this.$el.find('#note-body').notebook();
-	
-   },
-   createNoteBook:function(){
-   
-   
-   }
-				  
-				  
-				  
-
-
-});
-// implementing functionality 
-
-new App.leftRegion({el:'#leftRegion'});
-
-new App.rightRegion({el:"#rightRegion"});
-
-
-
-
-
-
-//});
-
-
-
-
-</script>
+<script src="js/application.js"></script>
 <style>
 #notecontent{
 width:100%;
