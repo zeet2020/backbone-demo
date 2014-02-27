@@ -19,8 +19,8 @@ App.noteModel = Backbone.Model.extend({
 		if(attr.title.length > 0){
 		   var tempTitle = $("<p>"+attr.title+"<p>").text();
 		    if(tempTitle.length > 120){
-			  alert("validation failed enter only 120 char in title");
-			  return false;
+			  return "validation failed enter only 120 char in title";
+			  
 			}
 		}
 		
@@ -56,6 +56,9 @@ App.noteItemView = Backbone.View.extend({
         });
     },
 	noteSelected:function(e){
+	    
+		this.$el.parent().find('li.active').removeClass('active');
+		this.$el.addClass('active');
 		App.vent.trigger("noteSelect",this.model);
 	},
 	render:function(){
@@ -115,15 +118,26 @@ App.noteCreateItemView = Backbone.View.extend({
 		App.vent.trigger("updateRegion");
 	},
 	saveNote:function(e){	
-		this.model.set('title',this.$el.find('#note-title').text());
+	     originalModel = this.model.toJSON();  //method reten the default earier value if the validation fail
+		this.model.set({'title':this.$el.find('#note-title').text()});
 		this.model.set('body',this.$el.find('#note-body').html());
-				  
+        if(!this.model.isValid()){
+		      
+		     this.model.set(originalModel);
+		     alert(this.model.validationError);
+			 
+		}else{
 		if(this.model.get('id')){
 		
 			this.model.save();
         }else{
             App.vent.trigger("createnote",this.model);
         }
+		
+		
+		}
+		
+		
 	},
 	initialize:function(){
 		this.model = new App.noteModel();
@@ -172,12 +186,44 @@ App.rightRegion = Backbone.View.extend({
    render:function(){
     
     this.$el.append(this.noteCreateItemView.render().el);
-	this.$el.find('#note-title').notebook({
+	/*this.$el.find('#note-title').notebook({
 				modifiers:['bold', 'italic'],
 				placeholder: 'Type something awesome...',
 				mode: 'inline',
 	});
-	this.$el.find('#note-body').notebook();
+	this.$el.find('#note-body').notebook();*/
+	
+               
+          
+	 new MediumEditor('#note-title',
+	 {
+	  buttons:[],
+	  disableReturn:true,
+	  disableToolbar:true,
+	 }
+	 );
+	  new MediumEditor('#note-body',{
+	  buttons:['pre','bold', 'italic', 'quote','orderedlist','unorderedlist'],
+	  buttonLabels:{
+	  'bold': '<b>b</b>',
+	  'italic': '<i>i</i>',
+	  'quote':'<b>"</b>',
+	  'unorderedlist':'<b>ul</b>',
+	  'orderedlist':'<b>ol</b>',
+	  'pre':'<b>pre</b>'
+	  },
+	  diffLeft: 25,
+      diffTop: 10,
+      firstHeader: 'h1',
+      secondHeader: 'h2',
+      delay: 100,
+      targetBlank: true
+	  });
+	
+	
+	
+	
+	
 	},
 	
 });

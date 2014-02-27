@@ -14,7 +14,7 @@
 	
 	
 	<link href="css/font-awesome.css" rel="stylesheet">
-	<link href="css/jquery.notebook.css" rel="stylesheet">
+	<link href="css/medium-editor.css" rel="stylesheet">
     <link href="css/bootstrap.min.css" rel="stylesheet">
   <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
   <!--[if lt IE 9]>
@@ -27,13 +27,13 @@
   <link rel="apple-touch-icon-precomposed" sizes="72x72" href="img/apple-touch-icon-72-precomposed.png">
   <link rel="apple-touch-icon-precomposed" href="img/apple-touch-icon-57-precomposed.png">
   <link rel="shortcut icon" href="img/favicon.png">
-  
+  <link rel="stylesheet" media="screen" href="http://openfontlibrary.org/face/santa-barbara-streets" rel="stylesheet" type="text/css"/> 
 	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.0/jquery.js"></script>
 	
 	<script type="text/javascript" src="lib/underscore-min.js"></script>
     <script type="text/javascript" src="lib/backbone-min.js"></script>
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="lib/jquery.notebook.js"></script>
+	<script type="text/javascript" src="js/medium-editor.js"></script>
 </head>
 
 <body ng-controller="main">
@@ -121,8 +121,8 @@
 <script type="text/template" id="createNoteItemTemplate">
 
 <div id="notecontent">
-<div id="note-title"  ><%= title %></div>
-<div id="note-body"><%= body %></div>
+<div id="note-title" ><%= title %></div>
+<div id="note-body" ><%= body %></div>
 </div>
 <button id="savenote" class="pull-right btn btn-primary">Save</button>
 <button id="newnote" class="pull-right btn btn-primary">New</button>
@@ -134,6 +134,10 @@ width:100%;
 height:100%;
 
 background:url('./img/bodyback.png');
+
+font-family: 'SantaBarbaraStreets';
+   font-weight: normal;
+   font-style: normal; 
 }
 
 #note-title{
@@ -141,12 +145,13 @@ font-weight:bold;
 font-size:20px;
 padding:2%;
 margin-top:2%;
+outline:none;
 }
 
 #note-body{
-font-size:15px;
+font-size:20px;
 padding:2%;
-
+outline:none;
 }
 
 #savenote {
