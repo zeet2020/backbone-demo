@@ -7,12 +7,32 @@ var App = {};
 //extending events handle custom events in application
 App.vent = _.extend({}, Backbone.Events); 
 
+App.userModel = Backbone.Model.extend({
+         initialize:function(){
+		 		        id = localStorage.getItem('backbonedemouid');
+		 			if(id){
+				        this.set('id',id);
+				    }else{
+					    guid = this.guid();
+				 		localStorage.setItem('backbonedemouid',guid);
+		                this.set('id',guid);
+		           }
+		},
+        s4:function(){
+		 return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+		},
+        guid:function(){
+		  return (this.s4()+this.s4()+"-"+this.s4()+"-"+this.s4()+"-"+this.s4()+"-"+this.s4()+this.s4()+this.s4());
+		}		
+	 });
+
 
 App.noteModel = Backbone.Model.extend({
 	// set default property 
     defaults:{
 		title:'Title..',
 		body:'Body...'
+		
     },
     validate:function(attr,options){   // defining a validation method 
 		
@@ -30,7 +50,11 @@ App.noteModel = Backbone.Model.extend({
 				
 App.noteCollection = Backbone.Collection.extend({
 	model : App.noteModel,   // this is a collection of "noteModel" type 
-	url:'backend/index.php/notes',  // defining a rest end point for the collection and model.. 
+	url:'backend/index.php/notes',  // defining a rest end point for the collection and model..
+    initialize:function(){
+	   this.comparator = 'title';
+	   
+	}	
 });
 				
 //defining a itemView for each note 				
@@ -76,6 +100,7 @@ App.noteCollectionView = Backbone.View.extend({
 		
 		this.collection.fetch({
 			success:function(){
+			    ncview.collection.sort(-1);
 				ncview.render();
 			}					
 		});
@@ -96,7 +121,7 @@ App.noteCollectionView = Backbone.View.extend({
 
 	},
 	render:function(){
-		var link= '';
+		
 		this.$el.empty(); // empty all elements		
 		this.collection.each(function(value,key,list){					    
 			var itemView = new App.noteItemView({model:value});
@@ -230,9 +255,19 @@ App.rightRegion = Backbone.View.extend({
 
 // rendering the regions functionality 
 
+App.current_user = new App.userModel();
+
+if(App.current_user.id){
+
 new App.leftRegion({el:'#leftRegion'});
 
 new App.rightRegion({el:"#rightRegion"});
+
+
+}else{
+alert("wow!... your using very old version of browser");
+
+}
 
 
 

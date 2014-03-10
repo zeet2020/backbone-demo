@@ -23,8 +23,8 @@ $app = new \Slim\Slim();
 $app->get('/',function() use ($app){
 
 
-echo "this server backend";
-print_r($app->request);
+echo "this is back end";
+
 
 });
 
