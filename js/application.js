@@ -8,7 +8,8 @@ var App = {};
 App.vent = _.extend({}, Backbone.Events); 
 
 App.userModel = Backbone.Model.extend({
-         initialize:function(){
+        urlRoot:'backend/index.php/user', 
+        initialize:function(){
 		 		        id = localStorage.getItem('backbonedemouid');
 		 			if(id){
 				        this.set('id',id);
@@ -31,8 +32,12 @@ App.noteModel = Backbone.Model.extend({
 	// set default property 
     defaults:{
 		title:'Title..',
-		body:'Body...'
-		
+		body:'Body...',
+	        	
+    },
+    initialize:function(){
+
+    this.set('guid',App.current_user.id);
     },
     validate:function(attr,options){   // defining a validation method 
 		
@@ -256,6 +261,10 @@ App.rightRegion = Backbone.View.extend({
 // rendering the regions functionality 
 
 App.current_user = new App.userModel();
+
+
+
+App.current_user.fetch();
 
 if(App.current_user.id){
 

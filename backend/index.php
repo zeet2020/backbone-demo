@@ -3,28 +3,43 @@
 require 'Slim/Slim.php';
 require 'rb.php';
 \Slim\Slim::registerAutoloader();
-R::setup('mysql:host=localhost;dbname=backbone_training','root','');
-
+R::setup('mysql:host=localhost;dbname=backbone_training','root','root');
+session_start();
 /*$note = R::dispense('note');
 
 $note->title = "this simple note name";
 $note->body = " note body start here very importatnt data";
 $note->created = time();
-
+$note->guid = "easdlkasjdlkajsdkljasldkjaslkdjaskldjklasjdklasjdklas";
 
 R::store($note);*/
 
 
 
 
-$app = new \Slim\Slim();
+$app = new \Slim\Slim(array(
+        'mode' => 'development',
+        'debug' => true
+  ));
+
 
 
 $app->get('/',function() use ($app){
 
 
-echo "this is back end";
+echo "this is back endsdf";
 
+
+});
+
+
+$app->get('/user/:id',function($id) use ($app){
+
+$_SESSION['user_guid'] = $id;
+
+echo json_encode(array('user_guid'=>$id  ));
+
+ 
 
 });
 
@@ -34,8 +49,13 @@ echo "this is back end";
 $app->get('/notes',function(){
 
 header("Content-Type: application/json");
+if(isset($_SESSION['user_guid'])){
+$guid = $_SESSION['user_guid'];
+}else{
+$guid = '';
+}
 
-$notes = R::getAll( 'select * from note' );
+$notes = R::getAll( "select * from note where guid = :guid",array('guid' => $guid));
 echo json_encode($notes);
 
 });
@@ -53,6 +73,7 @@ $data = (array) json_decode($body);
 $note = R::dispense('note');
 $note->title = $data['title'];
 $note->body = $data['body'];
+$note->guid = $data['guid'];
 $note->created = time(); 
 $result = R::store($note);
 echo json_encode($note->export());
