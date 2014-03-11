@@ -3,7 +3,7 @@
 require 'Slim/Slim.php';
 require 'rb.php';
 \Slim\Slim::registerAutoloader();
-R::setup('mysql:host=localhost;dbname=backbone_training','root','root');
+R::setup('mysql:host=localhost;dbname=backbone_training','root','');
 session_start();
 /*$note = R::dispense('note');
 
@@ -77,6 +77,7 @@ $note->guid = $data['guid'];
 $note->created = time(); 
 $result = R::store($note);
 echo json_encode($note->export());
+
 }else{
 
 echo json_encode(array());

@@ -197,6 +197,7 @@ App.leftRegion = Backbone.View.extend({
 		this.render();
 	},
 	render:function(){
+		//rendering the left region
 		this.$el.find('.panel-body').html(this.collectionView.el);
 	}
 });
@@ -215,16 +216,10 @@ App.rightRegion = Backbone.View.extend({
    },
    render:function(){
     
-    this.$el.append(this.noteCreateItemView.render().el);
-	/*this.$el.find('#note-title').notebook({
-				modifiers:['bold', 'italic'],
-				placeholder: 'Type something awesome...',
-				mode: 'inline',
-	});
-	this.$el.find('#note-body').notebook();*/
+	//rendering the right region
 	
-               
-          
+    this.$el.append(this.noteCreateItemView.render().el);
+	         
 	 new MediumEditor('#note-title',
 	 {
 	  buttons:[],
@@ -232,6 +227,7 @@ App.rightRegion = Backbone.View.extend({
 	  disableToolbar:true,
 	 }
 	 );
+	   // configuration for medium editor plugin.
 	  new MediumEditor('#note-body',{
 	  buttons:['pre','bold', 'italic', 'quote','orderedlist','unorderedlist'],
 	  buttonLabels:{
@@ -264,7 +260,7 @@ App.current_user = new App.userModel();
 
 
 
-App.current_user.fetch();
+App.current_user.fetch(); //just setting guid at server... 
 
 if(App.current_user.id){
 
