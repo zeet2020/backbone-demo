@@ -10,14 +10,14 @@ App.vent = _.extend({}, Backbone.Events);
 App.userModel = Backbone.Model.extend({
         urlRoot:'backend/index.php/user', 
         initialize:function(){
-		 		        id = localStorage.getItem('backbonedemouid');
-		 			if(id){
-				        this.set('id',id);
-				    }else{
-					    guid = this.guid();
-				 		localStorage.setItem('backbonedemouid',guid);
-		                this.set('id',guid);
-		           }
+			id = localStorage.getItem('backbonedemouid');
+		 	if(id){
+				this.set('id',id);
+			}else{
+				guid = this.guid();
+				localStorage.setItem('backbonedemouid',guid);
+		        this.set('id',guid);
+			}
 		},
         s4:function(){
 		 return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
@@ -37,7 +37,7 @@ App.noteModel = Backbone.Model.extend({
     },
     initialize:function(){
 
-    this.set('guid',App.current_user.id);
+    this.set('guid',App.current_user.attributes.id);
     },
     validate:function(attr,options){   // defining a validation method 
 		
@@ -262,7 +262,7 @@ App.current_user = new App.userModel();
 
 App.current_user.fetch(); //just setting guid at server... 
 
-if(App.current_user.id){
+if(App.current_user.attributes.id){
 
 new App.leftRegion({el:'#leftRegion'});
 
