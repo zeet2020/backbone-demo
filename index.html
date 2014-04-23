@@ -27,7 +27,7 @@
   <link rel="apple-touch-icon-precomposed" sizes="72x72" href="img/apple-touch-icon-72-precomposed.png">
   <link rel="apple-touch-icon-precomposed" href="img/apple-touch-icon-57-precomposed.png">
   <link rel="shortcut icon" href="img/favicon.png">
-  <link rel="stylesheet" media="screen" href="http://openfontlibrary.org/face/santa-barbara-streets" rel="stylesheet" type="text/css"/> 
+ 
 	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.0/jquery.js"></script>
 	
 	<script type="text/javascript" src="lib/underscore-min.js"></script>
@@ -89,7 +89,7 @@
 			</nav> 
 		</div>
 	</div>
-	<div class="row clearfix">
+	<div  id="mainsection" class="row clearfix">
 		<div class="col-md-8 column" id="rightRegion">
 		
 		
@@ -123,15 +123,31 @@
 <div id="notecontent">
 <div id="note-title" ><%= title %></div>
 <div id="note-body" ><%= body %></div>
-</div>
 <button id="savenote" class="pull-right btn btn-primary">Save</button>
 <button id="newnote" class="pull-right btn btn-primary">New</button>
+</div>
+
 </script>
 <script src="js/application.js"></script>
 <style>
+
+
+
+
+
+#rightRegion{
+margin-top: -14px;
+padding-right:0px;
+}
+
+#leftRegion{
+
+padding-left:0px;
+}
+
 #notecontent{
-width:100%;
-height:100%;
+max-width:100%;
+max-height:100%;
 
 background:url('./img/bodyback.png');
 
