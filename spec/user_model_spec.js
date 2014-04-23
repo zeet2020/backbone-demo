@@ -1,5 +1,5 @@
 
-describe("application",function(){
+describe("user model",function(){
 beforeEach(function(){
  App.current_user =  new App.userModel();
 });
